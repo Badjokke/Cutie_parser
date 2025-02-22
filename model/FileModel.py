@@ -1,5 +1,7 @@
 from PyQt6 import QtCore
 from PyQt6.QtCore import Qt
+
+
 class FileModel(QtCore.QAbstractListModel):
     def __init__(self, *args, items=None, **kwargs):
         super().__init__(*args, **kwargs)
