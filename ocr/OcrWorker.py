@@ -1,14 +1,13 @@
-from charset_normalizer.md import getLogger
-
+#from charset_normalizer.md import getLogger
 from eda.EventEmitter import EventEmitter, EventChannels
 from eda.MessageUtil import MessageUtil
-
+from log.LoggerFactory import LoggerFactory
 
 class OcrWorker:
     def __init__(self, reader, event_emitter: EventEmitter):
         self.reader = reader
         self.__event_emitter = event_emitter
-        self.__loger = getLogger(self.__class__.__name__)
+        self.__loger = LoggerFactory.create_logger(self.__class__.__name__)
         self.__listen_to_ocr_channel()
 
     def __listen_to_ocr_channel(self):
