@@ -21,5 +21,5 @@ class OcrWorker:
 
     def __emit_text_event(self, text: list[str]):
         val = " ".join(text)
-        self.__loger.info(f"Emitting {val} to channel: {EventChannels.OCR_TEXT_CHANNEL.value}")
+        self.__loger.info(f"Emitting \"{val}\" to channel: {EventChannels.OCR_TEXT_CHANNEL.value}")
         self.__event_emitter.emit_event(MessageUtil.build_string_message(val, EventChannels.OCR_TEXT_CHANNEL.value))
