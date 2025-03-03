@@ -1,19 +1,29 @@
+import asyncio
 import sys
-from screens.MainWindow import MainWindow
-from PyQt6.QtWidgets import QApplication, QWidget, QMainWindow
-from ocr.OcrWorker import OcrWorker
-from ocr.OcrFactory import OcrFactory
+
+from PyQt6.QtWidgets import QApplication
+
 from eda.EventEmitter import EventEmitter
-if __name__ == "__main__":
+from log.LoggerFactory import LoggerFactory
+from ocr.OcrFactory import OcrFactory
+from ocr.OcrWorker import OcrWorker
+from screens.MainWindow import MainWindow
+
+log = LoggerFactory.create_logger("MainApplication")
+
+
+async def draw_main_screen():
+    log.info("Creating event emitter")
     emitter = EventEmitter()
-    ocr_worker = OcrWorker(OcrFactory.create_easyocr(), emitter)
+    log.info("Creating ocr")
+    OcrWorker(OcrFactory.create_easyocr(), emitter)
+    log.info("Starting main application")
     app = QApplication(sys.argv)
     window = MainWindow(emitter)
     window.show()
     app.exec()
-"""
-from ocr.ocr_factory import create_easyocr
-reader = create_easyocr()
-text = reader.readtext("capture.png")
-print(text)
-"""
+    log.info("Finished")
+
+
+if __name__ == "__main__":
+    asyncio.run(draw_main_screen())

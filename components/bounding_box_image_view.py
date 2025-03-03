@@ -8,7 +8,6 @@ from eda.MessageUtil import MessageUtil
 from log.LoggerFactory import LoggerFactory
 
 
-# layered pixmap? single layer seems like a pain in the butt
 class BoundingBoxImageView(QWidget):
     def __init__(self, image: str, event_emitter: EventEmitter, parent=None):
         super().__init__(parent)
@@ -26,6 +25,7 @@ class BoundingBoxImageView(QWidget):
         self.event_emitter = event_emitter
 
         self.logger = LoggerFactory.create_logger(self.__class__.__name__)
+        self.setMinimumSize(self.pixmap.size())
         self.__init_canvas()
 
     def mouseMoveEvent(self, event):

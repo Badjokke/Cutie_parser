@@ -14,3 +14,4 @@ class FileModel(QtCore.QAbstractListModel):
 
     def rowCount(self, index):
         return len(self.todos)
+

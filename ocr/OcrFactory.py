@@ -10,5 +10,5 @@ class OcrFactory:
         return processor, model
 
     @staticmethod
-    def create_easyocr(languages: list[str] = ["en"]):
+    def create_easyocr(languages: list[str] = ["de"]):
         return easyocr.Reader(languages)
