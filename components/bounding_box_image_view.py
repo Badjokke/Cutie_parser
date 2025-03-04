@@ -42,7 +42,7 @@ class BoundingBoxImageView(QWidget):
         captured.save("capture.png")
         self.emit_ocr_message(captured)
 
-        self.remove_bounding_box(rect)
+        #self.remove_bounding_box(rect)
 
     def set_box_start(self, x1, y1):
         if self.box_start is False:

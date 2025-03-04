@@ -1,3 +1,5 @@
+import json
+
 from PyQt6.QtCore import QByteArray, QBuffer, QIODeviceBase
 from PyQt6.QtGui import QPixmap
 
@@ -12,3 +14,7 @@ class Util:
         byte_data = buffer.data().data()
         buffer.close()
         return byte_data
+
+    @staticmethod
+    def t17_jsonl_line(text: str, image: str, label: str):
+        return json.dumps({"text": text.split(" "), "image": [image], "label": label.split(" ")})
