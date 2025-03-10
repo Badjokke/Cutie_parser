@@ -9,9 +9,11 @@ from eda.model.AbstractMessage import AbstractMessage
 class EventChannels(Enum):
     OCR_CHANNEL = "OCR_CHANNEL"
     OCR_TEXT_CHANNEL = "OCR_TEXT_CHANNEL"
+    IMAGE_SELECTED_CHANNEL = "IMAGE_SELECTED_CHANNEL"
+
 
 class EventEmitter:
-    def __init__(self, pool_size:int = 5):
+    def __init__(self, pool_size: int = 5):
         self.__subscribers: dict[str, list[Callable[[AbstractMessage], None]]] = {}
         self.__threadpool = ThreadPoolExecutor(max_workers=pool_size)
         self.logger = getLogger(self.__class__.__name__)

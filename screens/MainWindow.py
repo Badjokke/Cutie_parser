@@ -9,15 +9,16 @@ from components.util.util import Util
 from eda.EventEmitter import EventEmitter, EventChannels
 from eda.model.StringMessage import StringMessage
 from log.LoggerFactory import LoggerFactory
+from model.FileModel import FileModel
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, emitter: EventEmitter):
+    def __init__(self, emitter: EventEmitter, items: list[FileModel]):
         super().__init__()
         self.emitter = emitter
 
         self.setWindowTitle("Some fancy title")
-        self.setMinimumSize(QSize(1024, 680))
+        self.setMinimumSize(QSize(1500, 1000))
         self.logger = LoggerFactory.create_logger(self.__class__.__name__)
         self.layout = self.setup_layout(self.create_grid_layout())
         self.text_area = QTextEdit(parent=self)
@@ -25,20 +26,22 @@ class MainWindow(QMainWindow):
         self.ocr_scan_input = self.create_input("ocr_dummy_input")
 
         self.label_word_count = QLabel(text="0")
+        self.bounding_box = BoundingBoxImageView("130b.PNG", parent=self, event_emitter=self.emitter)
+
         self.label_input = self.create_input("label_input")
         self.label_input.textEdited.connect(self.set_label_count_label)
         self.submitButton = QPushButton("Submit")
         self.submitButton.setFixedSize(80, 60)
 
-        self.build_upper_screen_part()
+        self.build_upper_screen_part(items)
         self.layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed), 1, 0, 1, 3)
         self.build_lower_screen_part()
 
         self.main_widget = QWidget()
         self.main_widget.setLayout(self.layout)
         self.setCentralWidget(self.main_widget)
-
         self.listen_to_ocr_channel()
+        self.listen_to_image_change_channel()
         self.add_submit_button_action()
 
     def listen_to_ocr_channel(self):
@@ -58,7 +61,7 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def setup_layout(layout: QGridLayout) -> QGridLayout:
-        layout.setColumnStretch(0, 1)
+        layout.setColumnStretch(0, 3)
         layout.setColumnStretch(2, 1)
         layout.setRowStretch(0, 3)
         layout.setRowStretch(2, 1)
@@ -70,10 +73,10 @@ class MainWindow(QMainWindow):
             qt_input.setPlaceholderText(placeholder)
         return qt_input
 
-    def build_upper_screen_part(self):
-        self.layout.addWidget(BoundingBoxImageView("130b.PNG", parent=self, event_emitter=self.emitter), 0, 0)
+    def build_upper_screen_part(self, items):
+        self.layout.addWidget(self.bounding_box, 0, 0)
+        self.layout.addWidget(ListView(self, items, event_emitter=self.emitter), 0, 2)
         self.layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum), 0, 1)
-        self.layout.addWidget(ListView(parent=self, event_emitter=self.emitter))
 
     def build_lower_screen_part(self):
         self.layout.addWidget(self.text_area, 2, 2)
@@ -111,3 +114,11 @@ class MainWindow(QMainWindow):
 
     def set_label_count_label(self):
         self.label_word_count.setText(f'{len(self.label_input.text().split(" "))}')
+
+    def listen_to_image_change_channel(self):
+        self.emitter.add_consumer(EventChannels.IMAGE_SELECTED_CHANNEL.value, self.set_new_item)
+
+    def set_new_item(self, message: StringMessage):
+        self.logger.info("Image selected event consumed")
+        body = message.get_message_body()
+        self.bounding_box.set_new_canvas(body)

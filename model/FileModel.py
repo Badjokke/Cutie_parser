@@ -1,17 +1,13 @@
-from PyQt6 import QtCore
-from PyQt6.QtCore import Qt
+class FileModel:
+    def __init__(self, item_label: str, item_value: str):
+        self.item_label = item_label
+        self.item_value = item_value
+        self.processed = False
 
+    def __call__(self, *args, **kwargs):
+        return self.item_value, self.item_label
 
-class FileModel(QtCore.QAbstractListModel):
-    def __init__(self, *args, items=None, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.todos = items or []
-
-    def data(self, index, role):
-        if role == Qt.ItemDataRole.DisplayRole:
-            text = self.todos[index.row()]
-            return text
-
-    def rowCount(self, index):
-        return len(self.todos)
-
+    def get_item_value(self):
+        return self.item_value
+    def get_item_label(self):
+        return self.item_label
