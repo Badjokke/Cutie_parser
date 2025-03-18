@@ -17,7 +17,6 @@ class BoundingBoxImageView(QWidget):
         self.pixmap = QPixmap(image)
         self.label = QLabel(self)
 
-        self.canvas = QPixmap(self.pixmap.size())
         self.canvas_label = QLabel(self)
 
         self.event_emitter = event_emitter
@@ -64,21 +63,22 @@ class BoundingBoxImageView(QWidget):
         painter.drawRect(rect)
 
     def __init_canvas(self):
-        self.painter = QPainter(self.canvas)
         self.label.setPixmap(self.pixmap)
-        self.label.setMinimumSize(self.pixmap.size())
+        self.label.setFixedSize(self.pixmap.size())
         self.__reset_canvas()
+        self.painter = QPainter(self.canvas)
 
     def __reset_canvas(self):
+        self.canvas = QPixmap(self.pixmap.size())
         self.canvas.fill(Qt.GlobalColor.transparent)
-        self.label.setMinimumSize(self.pixmap.size())
         self.canvas_label.setPixmap(self.pixmap.copy())
+        self.canvas_label.setFixedSize(self.pixmap.size())
 
     def __draw_bounding_box(self) -> QRect:
         rect = QRect(min(self.x1, self.x2), min(self.y1, self.y2), abs(self.x1 - self.x2), abs(self.y1 - self.y2))
         self.logger.info(f"Drawing bounding box {rect}")
         self.__draw_rec(self.painter, rect)
-        # self.canvas_label.setPixmap(self.canvas)
+        self.canvas_label.setPixmap(self.canvas)
         return rect
 
     @staticmethod
