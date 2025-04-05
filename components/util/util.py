@@ -16,5 +16,5 @@ class Util:
         return byte_data
 
     @staticmethod
-    def t17_jsonl_line(text: str, image: str, label: str):
-        return json.dumps({"text": text.split(" "), "image": [image], "label": label.split(" ")})
+    def t17_jsonl_line(text: list[str], image: str, label: str):
+        return json.dumps({"text": text, "image": [image], "label": label.split(" ")})

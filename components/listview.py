@@ -1,4 +1,4 @@
-from PyQt6.QtCore import QModelIndex
+from PyQt6.QtCore import QModelIndex, Qt
 from PyQt6.QtWidgets import QListView, QWidget, QVBoxLayout
 
 from eda.EventEmitter import EventEmitter, EventChannels
@@ -34,3 +34,10 @@ class ListView(QWidget):
     def __emit_new_item_selected_event(self, item: FileModel):
         self.log.info(f"Emitting select item event for item: {item.item_label}")
         self.event_emitter.emit_event(StringMessage(EventChannels.IMAGE_SELECTED_CHANNEL.value, item.get_item_value()))
+
+    def get_currently_selected_item_label(self):
+        index = self.listview.currentIndex()
+        if not index.isValid():
+           self.log.error(f"Invalid index {index} in listview")
+           return None
+        return index.data(Qt.ItemDataRole.DisplayRole)

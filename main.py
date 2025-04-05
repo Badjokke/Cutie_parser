@@ -13,7 +13,7 @@ from filesystem.filesystem import Filesystem
 log = LoggerFactory.create_logger("MainApplication")
 
 def load_items():
-    return Filesystem.load_directory_names("B:\dipl\dataset\marianske_lazne_dataset\LOCATION")
+    return Filesystem.load_directory_names("B:\dipl\dataset\CUSTOM_DATASET\MISC")
 
 async def draw_main_screen(items: list[FileModel]):
     log.info("Creating event emitter")
@@ -22,7 +22,7 @@ async def draw_main_screen(items: list[FileModel]):
     OcrWorker(OcrFactory.create_easyocr(), emitter)
     log.info("Starting main application")
     app = QApplication(sys.argv)
-    window = MainWindow(emitter, items)
+    window = MainWindow(emitter, items, "MICS")
     window.show()
     app.exec()
     log.info("Finished")

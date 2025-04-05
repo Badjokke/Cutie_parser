@@ -13,7 +13,7 @@ from model.FileModel import FileModel
 
 
 class MainWindow(QMainWindow):
-    def __init__(self, emitter: EventEmitter, items: list[FileModel]):
+    def __init__(self, emitter: EventEmitter, items: list[FileModel], image_prefix: str):
         super().__init__()
         self.emitter = emitter
 
@@ -21,10 +21,11 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(QSize(1500, 1000))
         self.logger = LoggerFactory.create_logger(self.__class__.__name__)
         self.layout = self.setup_layout(self.create_grid_layout())
+        self.listview = ListView(self, items, event_emitter=self.emitter)
         self.text_area = QTextEdit(parent=self)
         self.ocr_word_count = QLabel(text="0")
         self.ocr_scan_input = self.create_input("ocr_dummy_input")
-
+        self.image_prefix = image_prefix
         self.label_word_count = QLabel(text="0")
         self.bounding_box = BoundingBoxImageView("130b.PNG", parent=self, event_emitter=self.emitter)
 
@@ -33,7 +34,7 @@ class MainWindow(QMainWindow):
         self.submitButton = QPushButton("Submit")
         self.submitButton.setFixedSize(80, 60)
 
-        self.build_upper_screen_part(items)
+        self.build_upper_screen_part()
         self.layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed), 1, 0, 1, 3)
         self.build_lower_screen_part()
 
@@ -73,9 +74,9 @@ class MainWindow(QMainWindow):
             qt_input.setPlaceholderText(placeholder)
         return qt_input
 
-    def build_upper_screen_part(self, items):
+    def build_upper_screen_part(self):
         self.layout.addWidget(self.bounding_box, 0, 0)
-        self.layout.addWidget(ListView(self, items, event_emitter=self.emitter), 0, 2)
+        self.layout.addWidget(self.listview, 0, 2)
         self.layout.addItem(QSpacerItem(20, 10, QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Minimum), 0, 1)
 
     def build_lower_screen_part(self):
@@ -97,17 +98,18 @@ class MainWindow(QMainWindow):
         word_count = int(self.ocr_word_count.text())
         label_count = int(self.label_word_count.text())
         self.logger.debug(f"Verifying word and label count. Word count {word_count}, label count {label_count}")
-
+        image_relative = f"{self.image_prefix}/{self.listview.get_currently_selected_item_label()}"
         if word_count != label_count:
             self.logger.debug("Word and label count mismatch")
             return self.show_dialog(f"Word count is not equal to label count. Words {word_count}, labels {label_count}")
 
-        self.append_to_textarea()
+        self.append_to_textarea(image_relative)
 
-    def append_to_textarea(self):
+    def append_to_textarea(self, image_relative: str):
         self.logger.debug("Appending to text area")
         self.text_area.append(
-            Util.t17_jsonl_line(self.ocr_scan_input.text(), "to_be_done.jpged", self.label_input.text()))
+            Util.t17_jsonl_line(self.filter_and_tokenize(self.ocr_scan_input.text()), image_relative,
+                                self.label_input.text()))
 
     def show_dialog(self, message: str):
         Dialog(message, "Whoah there cowboy", parent=self).exec()
@@ -122,3 +124,7 @@ class MainWindow(QMainWindow):
         self.logger.info("Image selected event consumed")
         body = message.get_message_body()
         self.bounding_box.set_new_canvas(body)
+
+    @staticmethod
+    def filter_and_tokenize(text: str) -> list[str]:
+        return list(filter(lambda token: len(token.trim()) > 0, text.split(" ")))
