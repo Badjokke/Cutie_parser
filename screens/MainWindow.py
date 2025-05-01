@@ -101,7 +101,7 @@ class MainWindow(QMainWindow):
         image_relative = f"{self.image_prefix}/{self.listview.get_currently_selected_item_label()}"
         if word_count != label_count:
             self.logger.debug("Word and label count mismatch")
-            return self.show_dialog(f"Word count is not equal to label count. Words {word_count}, labels {label_count}")
+            #return self.show_dialog(f"Word count is not equal to label count. Words {word_count}, labels {label_count}")
 
         self.append_to_textarea(image_relative)
 
@@ -127,4 +127,4 @@ class MainWindow(QMainWindow):
 
     @staticmethod
     def filter_and_tokenize(text: str) -> list[str]:
-        return list(filter(lambda token: len(token.trim()) > 0, text.split(" ")))
+        return list(filter(lambda token: len(token.strip()) > 0, text.split(" ")))
